@@ -12,7 +12,7 @@ sellPrice = 1000 # цена продажи
 buy_now = 1100 # цена buy_now
 duration = 3600 # время продажи, по стандарту один час
 finishTrade = 50000 # сумма прерывания скрипта
-
+profit = 0 # сумма прибыли
 
 def connect():
     session = fut.Core('login', 'password', 'secret')
@@ -25,6 +25,7 @@ def connect():
 
 
 def sell(session, id='', tradeId=''):
+    global profit
     if (tradeId != ''):
         if str(session.tradeStatus(tradeId)) == 'None' or str(session.tradeStatus(tradeId)) == 'expired':
             print('Отправил в список продаж')
@@ -34,11 +35,17 @@ def sell(session, id='', tradeId=''):
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
                 print('Отправил в список продаж, из аукциона')
                 session.sendToTradepile(id)
+    if len(session.watchlist()) > 0:
+        for i in session.watchlist():
+            if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
+                print('Отправил в список продаж, из аукциона')
+                session.sendToTradepile(id)
     if len(session.tradepile()) > 0:
         for i in session.tradepile():
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
-                print('Выставил на продажу за ' + price + 'монет')
+                print('Выставил на продажу за ' + price + ' монет')
                 session.sell(i['id'], sellPrice, buy_now, duration)
+                profit = profit + (int(sellPrice) - int(price))
 
 
 def startWork(session):
@@ -109,7 +116,7 @@ def startWork(session):
             session.keepalive()
             session.saveSession()
             startWork(session)
-        if session.credits < finishTrade:
+        if profit < finishTrade:
             startWork(session)
         else:
             print('Закончил')
