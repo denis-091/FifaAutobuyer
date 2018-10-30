@@ -15,7 +15,7 @@ finishTrade = 50000 # сумма прерывания скрипта
 
 
 def connect():
-    session = fut.Core('login', 'password', 'secretAnswer')
+    session = fut.Core('login', 'password', 'secret')
     print('Залогинился успешно')
     session.token_file = tokenFile
     print('Активировал токен')
@@ -25,7 +25,6 @@ def connect():
 
 
 def sell(session, id='', tradeId=''):
-    session.relist()
     if (tradeId != ''):
         if str(session.tradeStatus(tradeId)) == 'None' or str(session.tradeStatus(tradeId)) == 'expired':
             print('Отправил в список продаж')
@@ -52,12 +51,16 @@ def startWork(session):
             session.keepalive()
             time.sleep(30)
             session.keepalive()
+            session.saveSession()
+            sell(session)
             startWork(session)
         if session.credits < int(price):
             print('Недостаточно денег, ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S"))
             session.keepalive()
             time.sleep(30)
             session.keepalive()
+            session.saveSession()
+            sell(session)
             startWork(session)
         print(str(
             'Поиск слотов,текущее количество монет ' + str(
@@ -73,12 +76,16 @@ def startWork(session):
                     session.keepalive()
                     time.sleep(30)
                     session.keepalive()
+                    session.saveSession()
+                    sell(session)
                     break
                 if session.credits < int(price):
                     print('Недостаточно денег, ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S"))
                     session.keepalive()
                     time.sleep(30)
                     session.keepalive()
+                    session.saveSession()
+                    sell(session)
                     break
                 tradeId = i['tradeId']
                 idPlayer = i['id']
@@ -110,6 +117,7 @@ def startWork(session):
     except BaseException:
         print('Повторная попытка через 30 секунд')
         time.sleep(30)
+        session = connect()
         startWork(session)
 
 
