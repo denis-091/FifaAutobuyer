@@ -8,8 +8,8 @@ tokenFile = os.getcwd() + '/token.txt'
 
 player = 180403  # willian https://docs.google.com/spreadsheets/d/1ufH7aLh6oUh4q_M4bRP-vpbt6YFclrfeNAlkE7z01iU/edit#gid=0
 price = '34000'  # Цена покупки
-sellPrice = 35000  # цена продажи
-buy_now = 36000  # цена buy_now
+sellPrice = 40000  # цена продажи
+buy_now = 41000  # цена buy_now
 duration = 3600  # время продажи, по стандарту один час
 finishTrade = 50000  # сумма прерывания скрипта
 profit = 0  # сумма прибыли
@@ -44,8 +44,8 @@ def sell(session, id='', tradeId=''):
         for i in session.tradepile():
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
                 if str(i['resourceId']) == str(player):
-                    print('Перевыставил на продажу за ' + str(i['startingBid']) + ' монет')
-                    session.sell(i['id'], price, buy_now, duration)
+                    print('Выставил на продажу за ' + str(sellPrice) + ' монет')
+                    session.sell(i['id'], sellPrice, buy_now, duration)
                 else:
                     print('Перевыставил на продажу за ' + str(i['startingBid']) + ' монет')
                     session.sell(i['id'], i['startingBid'], i['buyNowPrice'], duration)
@@ -111,7 +111,7 @@ def startWork(session):
                         session.bid(tradeId, int(currentBuyNow), True)
                         session.saveSession()
                         currentItems.append(tradeId)
-                        print('Покупаю - ' + currentBuyNow + ' остаток монет ' + str(session.credits))
+                        print('Покупаю - ' + str(currentBuyNow) + ' остаток монет ' + str(session.credits))
                         sell(session, idPlayer, tradeId)
                         continue
                 else:
