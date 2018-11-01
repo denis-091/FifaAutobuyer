@@ -45,6 +45,9 @@ def sell(session, id='', tradeId=''):
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
                 if str(i['resourceId']) == str(player):
                     print('Перевыставил на продажу за ' + str(i['startingBid']) + ' монет')
+                    session.sell(i['id'], price, buy_now, duration)
+                else:
+                    print('Перевыставил на продажу за ' + str(i['startingBid']) + ' монет')
                     session.sell(i['id'], i['startingBid'], i['buyNowPrice'], duration)
 
 
