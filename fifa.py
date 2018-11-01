@@ -44,7 +44,6 @@ def sell(session, id='', tradeId=''):
         for i in session.tradepile():
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
                 if str(i['resourceId']) == str(player):
-                    print('тут')
                     print('Выставил на продажу за ' + str(sellPrice) + ' монет')
                     session.sell(i['id'], sellPrice, buy_now, duration)
                     profit = profit + (int(sellPrice) - int(price))
