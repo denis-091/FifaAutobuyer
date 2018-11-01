@@ -7,7 +7,7 @@ cookieFile = os.getcwd() + '/cookies.txt'
 tokenFile = os.getcwd() + '/token.txt'
 
 player = 180403  # willian https://docs.google.com/spreadsheets/d/1ufH7aLh6oUh4q_M4bRP-vpbt6YFclrfeNAlkE7z01iU/edit#gid=0
-price = '20000'  # Цена покупки
+price = '34000'  # Цена покупки
 sellPrice = 35000  # цена продажи
 buy_now = 36000  # цена buy_now
 duration = 3600  # время продажи, по стандарту один час
@@ -34,12 +34,12 @@ def sell(session, id='', tradeId=''):
         for i in session.unassigned():
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
                 print('Отправил в список продаж, из аукциона')
-                session.sendToTradepile(id)
+                session.sendToTradepile(i['id'])
     if len(session.watchlist()) > 0:
         for i in session.watchlist():
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
                 print('Отправил в список продаж, из аукциона')
-                session.sendToTradepile(id)
+                session.sendToTradepile(i['id'])
     if len(session.tradepile()) > 0:
         for i in session.tradepile():
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
