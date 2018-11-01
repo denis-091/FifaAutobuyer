@@ -6,13 +6,14 @@ import time
 cookieFile = os.getcwd() + '/cookies.txt'
 tokenFile = os.getcwd() + '/token.txt'
 
-player = 225663  # golovin https://docs.google.com/spreadsheets/d/1ufH7aLh6oUh4q_M4bRP-vpbt6YFclrfeNAlkE7z01iU/edit#gid=0
-price = '700' # Цена покупки
-sellPrice = 1000 # цена продажи
-buy_now = 1100 # цена buy_now
-duration = 3600 # время продажи, по стандарту один час
-finishTrade = 50000 # сумма прерывания скрипта
-profit = 0 # сумма прибыли
+player = 180403  # willian https://docs.google.com/spreadsheets/d/1ufH7aLh6oUh4q_M4bRP-vpbt6YFclrfeNAlkE7z01iU/edit#gid=0
+price = '20000'  # Цена покупки
+sellPrice = 35000  # цена продажи
+buy_now = 36000  # цена buy_now
+duration = 3600  # время продажи, по стандарту один час
+finishTrade = 50000  # сумма прерывания скрипта
+profit = 0  # сумма прибыли
+
 
 def connect():
     session = fut.Core('login', 'password', 'secret')
@@ -25,7 +26,6 @@ def connect():
 
 
 def sell(session, id='', tradeId=''):
-    global profit
     if (tradeId != ''):
         if str(session.tradeStatus(tradeId)) == 'None' or str(session.tradeStatus(tradeId)) == 'expired':
             print('Отправил в список продаж')
@@ -43,9 +43,11 @@ def sell(session, id='', tradeId=''):
     if len(session.tradepile()) > 0:
         for i in session.tradepile():
             if str(i['tradeState']) == 'None' or str(i['tradeState']) == 'expired':
-                print('Выставил на продажу за ' + price + ' монет')
-                session.sell(i['id'], sellPrice, buy_now, duration)
-                profit = profit + (int(sellPrice) - int(price))
+                if str(i['resourceId']) == str(player):
+                    print('тут')
+                    print('Выставил на продажу за ' + str(sellPrice) + ' монет')
+                    session.sell(i['id'], sellPrice, buy_now, duration)
+                    profit = profit + (int(sellPrice) - int(price))
 
 
 def startWork(session):
@@ -54,7 +56,8 @@ def startWork(session):
         sell(session)
         currentTime = datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S")
         if len(session.tradepile()) == 30:
-            print('Переполнен список продаж , ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S"))
+            print('Переполнен список продаж , ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(),
+                                                                                                      "%Y.%m.%d %H:%M:%S"))
             session.keepalive()
             time.sleep(30)
             session.keepalive()
@@ -62,7 +65,8 @@ def startWork(session):
             sell(session)
             startWork(session)
         if session.credits < int(price):
-            print('Недостаточно денег, ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S"))
+            print('Недостаточно денег, ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(),
+                                                                                               "%Y.%m.%d %H:%M:%S"))
             session.keepalive()
             time.sleep(30)
             session.keepalive()
@@ -72,7 +76,7 @@ def startWork(session):
         print(str(
             'Поиск слотов,текущее количество монет ' + str(
                 session.credits) + ' время запуска - ' + currentTime))
-        items = session.search('player', 'gold', '', '', player, '', price, '', '', '', '', '', '', '', '', '', '',
+        items = session.search('player', 'gold', '', '', player, '', '', '', price, '', '', '', '', '', '', '', '',
                                50)
         currentItems = []
         if len(items) > 0:
@@ -87,7 +91,8 @@ def startWork(session):
                     sell(session)
                     break
                 if session.credits < int(price):
-                    print('Недостаточно денег, ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S"))
+                    print('Недостаточно денег, ожидаю 30 секунд, текущее время - ' + datetime.strftime(datetime.now(),
+                                                                                                       "%Y.%m.%d %H:%M:%S"))
                     session.keepalive()
                     time.sleep(30)
                     session.keepalive()
@@ -97,21 +102,22 @@ def startWork(session):
                 tradeId = i['tradeId']
                 idPlayer = i['id']
                 currentBid = i['currentBid']
+                currentBuyNow = i['buyNowPrice']
                 if currentItems.count(tradeId) == 0 and int(currentBid) == 0:
                     tradeState = i['tradeState']
                     if tradeState == 'active':
                         session.sendToWatchlist(tradeId)
-                        session.bid(tradeId, int(price))
+                        session.bid(tradeId, int(currentBuyNow), True)
                         session.saveSession()
                         currentItems.append(tradeId)
-                        print('Покупаю - ' + price + ' остаток монет ' + str(session.credits))
+                        print('Покупаю - ' + currentBuyNow + ' остаток монет ' + str(session.credits))
                         sell(session, idPlayer, tradeId)
                         continue
                 else:
                     session.keepalive()
                     continue
         else:
-            print('Не нашел, отдыхаю 15 сек, ' + datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S"))
+            print('Не нашел, продолжаю поиск, ' + datetime.strftime(datetime.now(), "%Y.%m.%d %H:%M:%S"))
             sell(session)
             session.keepalive()
             session.saveSession()
